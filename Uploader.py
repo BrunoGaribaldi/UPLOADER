@@ -5,7 +5,7 @@ import shutil
 import subprocess
 from pathlib import Path
 from dotenv import load_dotenv
-
+from mail_sender import enviar_mail
 load_dotenv()
 
 OUTPUT_PATH = os.getenv("OUTPUTPATH")
@@ -74,10 +74,12 @@ while True:
             print(f"[ERROR] aws s3 sync falló (code={proc.returncode}) para {item}")
             if proc.stderr:
                 print(f"[STDERR] {proc.stderr.strip()}")
+                enviar_mail(item.name, f"[ERROR] aws s3 sync falló ({proc.returncode}) → {item} + {proc.stderr.strip()}")
             if proc.stdout:
                 print(f"[STDOUT] {proc.stdout.strip()}")
-
+                enviar_mail(item.name, f"[ERROR] aws s3 sync falló ({proc.returncode}) → {item} + {proc.stdout.strip()}")
             moved_to = safe_move_dir(item, failed)
             print(f"[FAIL] Movido a: {moved_to}")
+
 
     time.sleep(5)
